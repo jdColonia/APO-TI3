@@ -2,11 +2,12 @@ package com.example.demo;
 
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.image.Image;
-import javafx.scene.paint.Color;
+
+import java.util.Objects;
 
 public class Enemy extends Drawing implements Runnable{
-    private Image[] idleScorpion;
-    private Image[] runScorpion;
+    private final Image[] idleScorpion;
+    private final Image[] runScorpion;
     private TypeEnemy typeEnemy;
     private int frame = 0;
     private boolean isMoving = false;
@@ -16,13 +17,13 @@ public class Enemy extends Drawing implements Runnable{
         this.pos = pos;
         idleScorpion = new Image[14];
         for (int i = 1; i <= 14 ; i++) {
-            String uri = "file:" + HelloApplication.class.getResource("scorpion-idle/scorpion-idle"+i+".png").getPath();
+            String uri = "file:" + Objects.requireNonNull(HelloApplication.class.getResource("scorpion-idle/scorpion-idle" + i + ".png")).getPath();
             idleScorpion[i-1] = new Image(uri);
         }
 
         runScorpion = new Image[6];
         for (int i = 1; i <= 6 ; i++) {
-            String uri = "file:" + HelloApplication.class.getResource("scorpion-walk/scorpion-walk"+i+".png").getPath();
+            String uri = "file:" + Objects.requireNonNull(HelloApplication.class.getResource("scorpion-walk/scorpion-walk" + i + ".png")).getPath();
             runScorpion[i-1] = new Image(uri);
         }
     }

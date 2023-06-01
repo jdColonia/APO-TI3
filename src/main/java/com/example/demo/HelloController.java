@@ -1,7 +1,6 @@
 package com.example.demo;
 
 import javafx.application.Platform;
-import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.canvas.Canvas;
@@ -9,15 +8,12 @@ import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.control.Label;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
-import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.paint.Color;
-
-import java.net.Socket;
 import java.net.URL;
 import java.util.ArrayList;
-import java.util.Arrays;
+import java.util.Objects;
 import java.util.ResourceBundle;
 
 public class HelloController implements Initializable {
@@ -128,20 +124,20 @@ public class HelloController implements Initializable {
 
 
     public void onKeyReleased(KeyEvent event){
-        switch (event.getCode()){
-            case W: Wpressed = false; break;
-            case A: Apressed = false; break;
-            case S: Spressed = false; break;
-            case D: Dpressed = false; break;
+        switch (event.getCode()) {
+            case W -> Wpressed = false;
+            case A -> Apressed = false;
+            case S -> Spressed = false;
+            case D -> Dpressed = false;
         }
     }
     public void onKeyPressed(KeyEvent event){
         System.out.println(event.getCode());
-        switch (event.getCode()){
-            case W: Wpressed = true; break;
-            case A: Apressed = true; break;
-            case S: Spressed = true; break;
-            case D: Dpressed = true; break;
+        switch (event.getCode()) {
+            case W -> Wpressed = true;
+            case A -> Apressed = true;
+            case S -> Spressed = true;
+            case D -> Dpressed = true;
         }
     }
 
@@ -163,7 +159,7 @@ public class HelloController implements Initializable {
                     avatar.draw(gc);
 
                     for (int i = 0; i < level.getWalls().size(); i++) {
-                        level.getWalls().get(i).draw();;
+                        level.getWalls().get(i).draw();
                     }
 
                     for(int i=0 ; i<level.getBullets().size() ; i++){
@@ -240,10 +236,10 @@ public class HelloController implements Initializable {
         public void loadHeartsImage() {
         heartsImage = new Image[6];
         for (int i = 1; i <= 5 ; i++) {
-            String uri = "file:" + HelloApplication.class.getResource("heartLabel/"+i+"hearts.png").getPath();
+            String uri = "file:" + Objects.requireNonNull(HelloApplication.class.getResource("heartLabel/" + i + "hearts.png")).getPath();
             heartsImage[i-1] = new Image(uri);
         }
-        String uri = "file:" + HelloApplication.class.getResource("heartLabel/skull-0lives.png").getPath();
+        String uri = "file:" + Objects.requireNonNull(HelloApplication.class.getResource("heartLabel/skull-0lives.png")).getPath();
         heartsImage[5] = new Image(uri);
     }
 
@@ -276,7 +272,7 @@ public class HelloController implements Initializable {
     public void loadBulletsImage() {
         bulletsImage = new Image[6];
         for (int i = 0; i <= 5 ; i++) {
-            String uri = "file:" + HelloApplication.class.getResource("bulletLabel/"+i+"bullet.png").getPath();
+            String uri = "file:" + Objects.requireNonNull(HelloApplication.class.getResource("bulletLabel/" + i + "bullet.png")).getPath();
             bulletsImage[i] = new Image(uri);
         }
     }

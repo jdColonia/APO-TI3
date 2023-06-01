@@ -2,12 +2,13 @@ package com.example.demo;
 
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.image.Image;
-import javafx.scene.paint.Color;
+
+import java.util.Objects;
 
 public class Avatar extends Drawing implements Runnable{
 
-    private Image[] idle;
-    private Image[] run;
+    private final Image[] idle;
+    private final Image[] run;
     private int frame = 0;
     private boolean isMoving;
     private boolean isFacingRight = true;
@@ -20,13 +21,13 @@ public class Avatar extends Drawing implements Runnable{
         ammo = 5;
         idle = new Image[8];
         for (int i = 1; i <= 8 ; i++) {
-            String uri = "file:" + HelloApplication.class.getResource("playerIdle/player-idle"+i+".png").getPath();
+            String uri = "file:" + Objects.requireNonNull(HelloApplication.class.getResource("playerIdle/player-idle" + i + ".png")).getPath();
             idle[i-1] = new Image(uri);
         }
 
         run = new Image[4];
         for (int i = 1; i <= 4 ; i++) {
-            String uri = "file:" + HelloApplication.class.getResource("playerRun/player-run"+i+".png").getPath();
+            String uri = "file:" + Objects.requireNonNull(HelloApplication.class.getResource("playerRun/player-run" + i + ".png")).getPath();
             run[i-1] = new Image(uri);
         }
 

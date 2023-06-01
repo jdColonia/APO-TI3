@@ -2,10 +2,10 @@ package com.example.demo;
 
 import javafx.scene.canvas.Canvas;
 import javafx.scene.image.Image;
-import javafx.scene.image.ImageView;
 import javafx.scene.paint.Color;
 
 import java.util.ArrayList;
+import java.util.Objects;
 
 public class Level {
 
@@ -15,9 +15,9 @@ public class Level {
     private ArrayList<Enemy> enemies;
     private ArrayList<Bullet> bullets;
     private ArrayList<Wall> walls;
-    String uri1 = "file:" + HelloApplication.class.getResource("background/BackgroundLv1.png").getPath();
-    String uri2 = "file:" + HelloApplication.class.getResource("background/BackgroundLv2.png").getPath();
-    String uri3 = "file:" + HelloApplication.class.getResource("background/BackgroundLv3.png").getPath();
+    String uri1 = "file:" + Objects.requireNonNull(HelloApplication.class.getResource("background/BackgroundLv1.png")).getPath();
+    String uri2 = "file:" + Objects.requireNonNull(HelloApplication.class.getResource("background/BackgroundLv2.png")).getPath();
+    String uri3 = "file:" + Objects.requireNonNull(HelloApplication.class.getResource("background/BackgroundLv3.png")).getPath();
 
     public Level(int id) {
         this.id = id;
@@ -93,7 +93,7 @@ public class Level {
             walls.add(wall1);
         }
 
-        for (int i = 200; i > 50; i += -50) { // Funciona
+        for (int i = 200; i > 50; i -= 50) { // Funciona
             Wall wall1 = new Wall(i, 400, canvas, index);
             walls.add(wall1);
         }
@@ -115,7 +115,7 @@ public class Level {
             walls.add(wall1);
         }
 
-        for (int i = 650; i >= 550; i += -50) { // Funciona
+        for (int i = 650; i >= 550; i -= 50) { // Funciona
             Wall wall1 = new Wall(i, 350, canvas, index);
             walls.add(wall1);
         }

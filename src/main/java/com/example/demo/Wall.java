@@ -6,6 +6,8 @@ import javafx.scene.image.Image;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
 
+import java.util.Objects;
+
 public class Wall {
     public int x,y;
     private Canvas canvas;
@@ -13,9 +15,9 @@ public class Wall {
     public int damage = 5;
     private GraphicsContext gc;
     public Rectangle rectangle;
-    String uri1 = "file:"+ HelloApplication.class.getResource("background/BlockLv1.png").getPath();
-    String uri2 = "file:"+ HelloApplication.class.getResource("background/BlockLv2.png").getPath();
-    String uri3 = "file:"+ HelloApplication.class.getResource("background/BlockLv3.png").getPath();
+    String uri1 = "file:"+ Objects.requireNonNull(HelloApplication.class.getResource("background/BlockLv1.png")).getPath();
+    String uri2 = "file:"+ Objects.requireNonNull(HelloApplication.class.getResource("background/BlockLv2.png")).getPath();
+    String uri3 = "file:"+ Objects.requireNonNull(HelloApplication.class.getResource("background/BlockLv3.png")).getPath();
 
     public Wall(int x, int y, Canvas canvas, int index) {
         this.x = x;

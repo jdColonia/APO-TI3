@@ -6,8 +6,8 @@ import javafx.scene.paint.Color;
 
 public class Bullet extends Drawing {
 
-    private Vector dir;
-    private Image bulletImage;
+    private final Vector dir;
+    private final Image bulletImage;
     public Bullet(Vector pos, Vector dir){
         this.pos = pos;
         this.dir = dir;
