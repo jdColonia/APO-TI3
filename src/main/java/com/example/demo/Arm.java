@@ -10,11 +10,12 @@ import java.util.Objects;
 public class Arm extends Drawing {
 
     private int x = 150, y = 120;
-    private Image arm;
+    private Image armImage;
     private ArrayList<Bullet> bullets;
     private int ammo; // Número de balas disponibles en el cargador
     private int maxAmmo; // Capacidad máxima del cargador
     private int index; // Nivel actual
+    private boolean collected;
 
     String uri1 = "file:" + Objects.requireNonNull(HelloApplication.class.getResource("arm/arm-1.png")).getPath();
     String uri2 = "file:" + Objects.requireNonNull(HelloApplication.class.getResource("arm/arm-2.png")).getPath();
@@ -22,13 +23,14 @@ public class Arm extends Drawing {
 
     public Arm(int index) {
         switch (index) {
-            case 0 -> arm = new Image(uri1);
-            case 1 -> arm = new Image(uri2);
-            case 2 -> arm = new Image(uri3);
+            case 0 -> armImage = new Image(uri1);
+            case 1 -> armImage = new Image(uri2);
+            case 2 -> armImage = new Image(uri3);
         }
         this.index = index;
         this.maxAmmo = 5;
         this.ammo = 5;
+        this.collected = false;
         bullets = new ArrayList<>();
     }
 
@@ -71,7 +73,7 @@ public class Arm extends Drawing {
 
     @Override
     public void draw(GraphicsContext gc) {
-        gc.drawImage(arm, x, y, 25, 25);
+        gc.drawImage(armImage, x, y, 25, 25);
     }
 
     public int getX() {
@@ -90,12 +92,28 @@ public class Arm extends Drawing {
         this.y = y;
     }
 
+    public Image getArmImage() {
+        return armImage;
+    }
+
+    public void setArmImage(Image armImage) {
+        this.armImage = armImage;
+    }
+
     public int getAmmo() {
         return ammo;
     }
 
     public void setAmmo(int ammo) {
         this.ammo -= ammo;
+    }
+
+    public boolean isCollected() {
+        return collected;
+    }
+
+    public void setCollected(boolean collected) {
+        this.collected = collected;
     }
 
     public ArrayList<Bullet> getBullets() {

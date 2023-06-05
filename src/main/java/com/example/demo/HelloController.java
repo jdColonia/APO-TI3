@@ -30,6 +30,10 @@ public class HelloController implements Initializable {
 
     @FXML
     private ImageView playerLives;
+
+    @FXML
+    private ImageView playerArm;
+
     private Image background;
     private GraphicsContext gc;
     private ArrayList<Level> levels;
@@ -148,6 +152,7 @@ public class HelloController implements Initializable {
                         Math.pow(avatar.pos.getY() - arm.getY(), 2));
                 if (distance < 50) {
                     avatar.setArm(arm);
+                    arm.setCollected(true);
                     drawBullets();
                 }
             }
@@ -307,6 +312,16 @@ public class HelloController implements Initializable {
     public void drawArm() {
         Arm currentArm = getCurrentArm(currentLevel);
         currentArm.draw(gc);
+        new Thread(() -> {
+            while (isAlive) {
+                if (avatar.getArm() != null && avatar.getArm().isCollected()) playerArm.setImage(avatar.getArm().getArmImage());
+                try {
+                    Thread.sleep(100);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            }
+        }).start();
     }
 
     private Arm getCurrentArm(int currentLevelID) {
