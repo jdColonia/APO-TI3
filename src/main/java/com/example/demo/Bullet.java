@@ -8,6 +8,7 @@ public class Bullet extends Drawing {
 
     private final Vector dir;
     private final Image bulletImage;
+    private Color color;
     public Bullet(Vector pos, Vector dir){
         this.pos = pos;
         this.dir = dir;
@@ -17,10 +18,19 @@ public class Bullet extends Drawing {
 
     @Override
     public void draw(GraphicsContext gc) {
-        gc.setFill(Color.BLUE);
+        gc.setFill(color);
         gc.fillOval(pos.getX()-6, pos.getY()-6, 12,12);
         gc.drawImage(bulletImage,pos.getX()-6,pos.getY()-6,12,12);
         pos.setX( pos.getX() + dir.getX() );
         pos.setY( pos.getY() + dir.getY() );
     }
+
+    public Color getColor() {
+        return color;
+    }
+
+    public void setColor(Color color) {
+        this.color = color;
+    }
+
 }

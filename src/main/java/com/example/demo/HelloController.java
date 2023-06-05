@@ -11,6 +11,7 @@ import javafx.scene.image.ImageView;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.paint.Color;
+
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Objects;
@@ -32,7 +33,7 @@ public class HelloController implements Initializable {
     private Image background;
     private GraphicsContext gc;
     private ArrayList<Level> levels;
-    private int currentLevel = 0;
+    public int currentLevel = 0;
     private Image[] heartsImage;
     private Image[] bulletsImage;
 
@@ -94,22 +95,21 @@ public class HelloController implements Initializable {
     }
 
     private void onMousePressed(MouseEvent e) {
-        System.out.println("X: " +e.getX() + "Y: "+e.getY());
+        System.out.println("X: " + e.getX() + "Y: " + e.getY());
 
-        double diffX = e.getX() - avatar.pos.getX()-25;
-        double diffY = e.getY() - avatar.pos.getY()-25;
+        double diffX = e.getX() - avatar.pos.getX() - 25;
+        double diffY = e.getY() - avatar.pos.getY() - 25;
         Vector diff = new Vector(diffX, diffY);
         diff.normalize();
         diff.setMag(4);
 
+        if (avatar.getArm() != null && avatar.getArm().getAmmo() > 0) {
+            avatar.getArm().shoot(new Vector(avatar.pos.getX() + 25, avatar.pos.getY() + 25), diff);
+        }
 
-        levels.get(currentLevel).getBullets().add(
-                new Bullet(
-                        new Vector(avatar.pos.getX()+25, avatar.pos.getY()+25),
-                        diff
-                )
-        );
     }
+
+
 
 
     private boolean isAlive = true;
@@ -123,7 +123,7 @@ public class HelloController implements Initializable {
     private Avatar avatar;
 
 
-    public void onKeyReleased(KeyEvent event){
+    public void onKeyReleased(KeyEvent event) {
         switch (event.getCode()) {
             case W -> Wpressed = false;
             case A -> Apressed = false;
@@ -131,45 +131,63 @@ public class HelloController implements Initializable {
             case D -> Dpressed = false;
         }
     }
-    public void onKeyPressed(KeyEvent event){
+
+    public void onKeyPressed(KeyEvent event) {
         System.out.println(event.getCode());
         switch (event.getCode()) {
             case W -> Wpressed = true;
             case A -> Apressed = true;
             case S -> Spressed = true;
             case D -> Dpressed = true;
+            // Recargar el arma
+            case R -> {
+                if (avatar.getArm() != null) avatar.getArm().reload();
+            }
+            case E -> {
+                int current = currentLevel;
+                Level level = levels.get(current); // Obtener el nivel actual
+                Arm arm = level.getArm(); // Obtener el armas del nivel
+                double distance = Math.sqrt(Math.pow(avatar.pos.getX() - arm.getX(), 2) +
+                        Math.pow(avatar.pos.getY() - arm.getY(), 2));
+                if (distance < 50 && !arm.isCollected()) { // Verificar si el jugador está cerca del arma
+                    avatar.setArm(arm); // Asignar el arma al avatar
+                    arm.setCollected(true); // Marcar el arma como recolectada
+                    level.setArm(null); // Eliminar el arma del nivel
+                    drawBullets();
+                }
+            }
         }
     }
 
-
-    public void draw(){
+    public void draw() {
         //
-
-        drawBullets();
         drawLives();
-        Thread ae = new Thread(()->{
-            while(isAlive){
+        Thread ae = new Thread(() -> {
+            while (isAlive) {
                 //Dibujar en el lienzo
                 Level level = levels.get(currentLevel);
-                Platform.runLater(()->{//Runnable
+                Platform.runLater(() -> {//Runnable
                     //Lo que hagamos aqui, corre en el main thread
                     gc.drawImage(level.getBackground(), 0, 0, canvas.getWidth(), canvas.getHeight());
                     gc.fillRect(canvas.getWidth(), 0, 10, 10);
                     avatar.setMoving(Wpressed || Spressed || Dpressed || Apressed);
                     avatar.draw(gc);
+                    drawArm(gc); // Dibujar el arma
 
                     for (int i = 0; i < level.getWalls().size(); i++) {
                         level.getWalls().get(i).draw();
                     }
 
-                    for(int i=0 ; i<level.getBullets().size() ; i++){
-                        level.getBullets().get(i).draw(gc);
-                        if(isOutside(level.getBullets().get(i).pos.getX(), level.getBullets().get(i).pos.getY())){
-                            level.getBullets().remove(i);
+                    if (avatar.getArm() != null) {
+                        for (int i = 0; i < avatar.getArm().getBullets().size(); i++) {
+                            avatar.getArm().getBullets().get(i).draw(gc);
+                            if (isOutside(avatar.getArm().getBullets().get(i).pos.getX(), avatar.getArm().getBullets().get(i).pos.getY())) {
+                                avatar.getArm().getBullets().remove(i);
+                            }
                         }
                     }
 
-                    for(int i=0 ; i<level.getEnemies().size() ; i++){
+                    for (int i = 0; i < level.getEnemies().size(); i++) {
                         level.getEnemies().get(i).draw(gc);
                     }
                 });
@@ -177,13 +195,13 @@ public class HelloController implements Initializable {
                 //Calculos geometricos
 
                 //Paredes
-                if(avatar.pos.getX() < 25) {
+                if (avatar.pos.getX() < 25) {
                     avatar.pos.setX(25);
                 }
-                if(avatar.pos.getY() > canvas.getHeight() - 25) {
+                if (avatar.pos.getY() > canvas.getHeight() - 25) {
                     avatar.pos.setY(canvas.getHeight() - 25);
                 }
-                if(avatar.pos.getY() < 0) {
+                if (avatar.pos.getY() < 0) {
                     switch (currentLevel) {
                         case 0 -> currentLevel = 1;
                         case 1 -> currentLevel = 2;
@@ -194,50 +212,54 @@ public class HelloController implements Initializable {
 
 
                 //Colisiones
-                for (int i = 0; i < level.getBullets().size(); i++) {
-                    Bullet bn = level.getBullets().get(i);
-                    for (int j = 0; j < level.getEnemies().size(); j++) {
-                        Enemy en = level.getEnemies().get(j);
+                if (avatar.getArm() != null) {
+                    for (int i = 0; i < avatar.getArm().getBullets().size(); i++) {
+                        Bullet bn = avatar.getArm().getBullets().get(i);
+                        for (int j = 0; j < level.getEnemies().size(); j++) {
+                            Enemy en = level.getEnemies().get(j);
 
-                        double distance = Math.sqrt(
-                                Math.pow(en.pos.getX() - bn.pos.getX(), 2) +
-                                        Math.pow(en.pos.getY() - bn.pos.getY(), 2)
-                        );
+                            double distance = Math.sqrt(
+                                    Math.pow(en.pos.getX() - bn.pos.getX(), 2) +
+                                            Math.pow(en.pos.getY() - bn.pos.getY(), 2)
+                            );
 
-                        if (distance < 5) {
-                            level.getBullets().remove(i);
-                            level.getEnemies().remove(j);
+                            if (distance < 5) {
+                                avatar.getArm().getBullets().remove(i);
+                                level.getEnemies().remove(j);
+                            }
                         }
                     }
                 }
 
-                if(Wpressed){
-                    avatar.pos.setY(avatar.pos.getY()-0.8);
+                if (Wpressed) {
+                    avatar.pos.setY(avatar.pos.getY() - 0.8);
                 }
                 if (Apressed) {
-                    avatar.pos.setX(avatar.pos.getX()-0.8);
+                    avatar.pos.setX(avatar.pos.getX() - 0.8);
                 }
                 if (Spressed) {
-                    avatar.pos.setY(avatar.pos.getY()+0.8);
+                    avatar.pos.setY(avatar.pos.getY() + 0.8);
                 }
                 if (Dpressed) {
-                    avatar.pos.setX(avatar.pos.getX()+0.8);
+                    avatar.pos.setX(avatar.pos.getX() + 0.8);
                 }
 
 
                 try {
                     Thread.sleep(5);
-                } catch (InterruptedException e) {e.printStackTrace();}
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
             }
         });
         ae.start();
     }
 
-        public void loadHeartsImage() {
+    public void loadHeartsImage() {
         heartsImage = new Image[6];
-        for (int i = 1; i <= 5 ; i++) {
+        for (int i = 1; i <= 5; i++) {
             String uri = "file:" + Objects.requireNonNull(HelloApplication.class.getResource("heartLabel/" + i + "hearts.png")).getPath();
-            heartsImage[i-1] = new Image(uri);
+            heartsImage[i - 1] = new Image(uri);
         }
         String uri = "file:" + Objects.requireNonNull(HelloApplication.class.getResource("heartLabel/skull-0lives.png")).getPath();
         heartsImage[5] = new Image(uri);
@@ -245,25 +267,25 @@ public class HelloController implements Initializable {
 
     public void drawLives() {
         new Thread(() -> {
-            while(isAlive){
-                if(avatar.getLives() == 5){
+            while (isAlive) {
+                if (avatar.getLives() == 5) {
                     playerLives.setImage(heartsImage[4]);
-                } else if(avatar.getLives() ==4){
+                } else if (avatar.getLives() == 4) {
                     playerLives.setImage(heartsImage[3]);
-                } else if(avatar.getLives() ==3){
+                } else if (avatar.getLives() == 3) {
                     playerLives.setImage(heartsImage[2]);
-                } else if(avatar.getLives() ==2){
+                } else if (avatar.getLives() == 2) {
                     playerLives.setImage(heartsImage[1]);
-                } else if(avatar.getLives() ==1){
+                } else if (avatar.getLives() == 1) {
                     playerLives.setImage(heartsImage[0]);
                 } else {
                     playerLives.setImage(heartsImage[5]);
                 }
             }
 
-            try{
+            try {
                 Thread.sleep(20);
-            }catch(InterruptedException e){
+            } catch (InterruptedException e) {
                 throw new RuntimeException(e);
             }
         }).start();
@@ -271,40 +293,78 @@ public class HelloController implements Initializable {
 
     public void loadBulletsImage() {
         bulletsImage = new Image[6];
-        for (int i = 0; i <= 5 ; i++) {
+        for (int i = 0; i <= 5; i++) {
             String uri = "file:" + Objects.requireNonNull(HelloApplication.class.getResource("bulletLabel/" + i + "bullet.png")).getPath();
             bulletsImage[i] = new Image(uri);
         }
     }
 
-    public void drawBullets(){
+    public void drawBullets() {
         new Thread(() -> {
-            while(isAlive){
-                if(avatar.getAmmo() ==5){
+            while (isAlive) {
+                if (avatar.getArm().getAmmo() == 5) {
                     playerBullets.setImage(bulletsImage[5]);
-                } else if(avatar.getAmmo() ==4){
+                } else if (avatar.getArm().getAmmo() == 4) {
                     playerBullets.setImage(bulletsImage[4]);
-                } else if(avatar.getAmmo() ==3){
+                } else if (avatar.getArm().getAmmo() == 3) {
                     playerBullets.setImage(bulletsImage[3]);
-                } else if(avatar.getAmmo() ==2){
+                } else if (avatar.getArm().getAmmo() == 2) {
                     playerBullets.setImage(bulletsImage[2]);
-                } else if(avatar.getAmmo() ==1){
+                } else if (avatar.getArm().getAmmo() == 1) {
                     playerBullets.setImage(bulletsImage[1]);
-                } else{
+                } else {
                     playerBullets.setImage(bulletsImage[0]);
                 }
             }
-
-            try{
+            try {
                 Thread.sleep(20);
-            }catch(InterruptedException e){
+            } catch (InterruptedException e) {
                 throw new RuntimeException(e);
             }
         }).start();
     }
 
     public boolean isOutside(double x, double y) {
-        return x<-10 || y<-10 || x>canvas.getWidth() || y>canvas.getHeight();
+        return x < -10 || y < -10 || x > canvas.getWidth() || y > canvas.getHeight();
+    }
+
+    private void drawArm(GraphicsContext gc) {
+        Arm currentArm = getCurrentArm(); // Obtener el arma actual según el nivel
+
+        if (currentArm != null && !currentArm.isCollected()) {
+            // Dibujar el arma solo si está recolectada
+            currentArm.draw(gc);
+        }
+    }
+
+    private Arm getCurrentArm() {
+        int current = currentLevel;
+        Level currentLevel = levels.get(current);
+        Arm arm;
+
+        return switch (currentLevel.getId()) {
+            case 0 -> {
+                // Retornar el arma correspondiente al nivel 0
+                arm = new Arm(0);
+                currentLevel.setArm(arm);
+                yield arm;
+            }
+            case 1 -> {
+                // Retornar el arma correspondiente al nivel 1
+                arm = new Arm(1);
+                currentLevel.setArm(arm);
+                yield arm;
+            }
+            case 2 -> {
+                // Retornar el arma correspondiente al nivel 2
+                arm = new Arm(2);
+                currentLevel.setArm(arm);
+                yield arm;
+            }
+            default ->
+                // Retornar null si no hay un arma definida para el nivel actual
+                    null;
+        };
     }
 
 

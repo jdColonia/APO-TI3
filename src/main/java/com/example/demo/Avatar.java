@@ -13,12 +13,11 @@ public class Avatar extends Drawing implements Runnable{
     private boolean isMoving;
     private boolean isFacingRight = true;
     private int lives;
-    private int ammo;
+    private Arm arm;
     public Avatar(){
         pos.setX(200);
         pos.setY(100);
         lives = 5;
-        ammo = 5;
         idle = new Image[8];
         for (int i = 1; i <= 8 ; i++) {
             String uri = "file:" + Objects.requireNonNull(HelloApplication.class.getResource("playerIdle/player-idle" + i + ".png")).getPath();
@@ -44,9 +43,10 @@ public class Avatar extends Drawing implements Runnable{
     }
 
     // Ejecutar en paralelo
+    private boolean isAlive = true;
     @Override
     public void run() {
-        while (true) {
+        while (isAlive) {
             frame = (frame+1)%4;
             try {
                 Thread.sleep(100);
@@ -64,14 +64,6 @@ public class Avatar extends Drawing implements Runnable{
         this.lives = lives;
     }
 
-    public int getAmmo() {
-        return ammo;
-    }
-
-    public void setAmmo(int ammo) {
-        this.ammo = ammo;
-    }
-
     public boolean isMoving() {
         return isMoving;
     }
@@ -86,5 +78,13 @@ public class Avatar extends Drawing implements Runnable{
 
     public void setFacingRight(boolean facingRight) {
         isFacingRight = facingRight;
+    }
+
+    public Arm getArm() {
+        return arm;
+    }
+
+    public void setArm(Arm arm) {
+        this.arm = arm;
     }
 }

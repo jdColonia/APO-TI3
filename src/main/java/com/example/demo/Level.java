@@ -13,8 +13,8 @@ public class Level {
     private Color color;
     private Image background;
     private ArrayList<Enemy> enemies;
-    private ArrayList<Bullet> bullets;
     private ArrayList<Wall> walls;
+    private Arm arm;
     String uri1 = "file:" + Objects.requireNonNull(HelloApplication.class.getResource("background/BackgroundLv1.png")).getPath();
     String uri2 = "file:" + Objects.requireNonNull(HelloApplication.class.getResource("background/BackgroundLv2.png")).getPath();
     String uri3 = "file:" + Objects.requireNonNull(HelloApplication.class.getResource("background/BackgroundLv3.png")).getPath();
@@ -27,7 +27,6 @@ public class Level {
             case 2 -> background = new Image(uri3);
         }
         enemies = new ArrayList<>();
-        bullets = new ArrayList<>();
         walls = new ArrayList<>();
     }
 
@@ -166,11 +165,16 @@ public class Level {
         this.enemies = enemies;
     }
 
-    public ArrayList<Bullet> getBullets() {
-        return bullets;
+    public Arm getArm() {
+        return arm;
     }
 
-    public void setBullets(ArrayList<Bullet> bullets) {
-        this.bullets = bullets;
+    public void setArm(Arm arm) {
+        this.arm = arm;
     }
+
+    public void removeArm() {
+        arm = null;
+    }
+
 }
