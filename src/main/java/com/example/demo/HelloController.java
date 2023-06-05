@@ -110,8 +110,6 @@ public class HelloController implements Initializable {
     }
 
 
-
-
     private boolean isAlive = true;
 
     private boolean Apressed = false;
@@ -133,7 +131,6 @@ public class HelloController implements Initializable {
     }
 
     public void onKeyPressed(KeyEvent event) {
-        System.out.println(event.getCode());
         switch (event.getCode()) {
             case W -> Wpressed = true;
             case A -> Apressed = true;
@@ -149,10 +146,8 @@ public class HelloController implements Initializable {
                 Arm arm = level.getArm(); // Obtener el armas del nivel
                 double distance = Math.sqrt(Math.pow(avatar.pos.getX() - arm.getX(), 2) +
                         Math.pow(avatar.pos.getY() - arm.getY(), 2));
-                if (distance < 50 && !arm.isCollected()) { // Verificar si el jugador está cerca del arma
-                    avatar.setArm(arm); // Asignar el arma al avatar
-                    arm.setCollected(true); // Marcar el arma como recolectada
-                    level.setArm(null); // Eliminar el arma del nivel
+                if (distance < 50) {
+                    avatar.setArm(arm);
                     drawBullets();
                 }
             }
@@ -172,7 +167,7 @@ public class HelloController implements Initializable {
                     gc.fillRect(canvas.getWidth(), 0, 10, 10);
                     avatar.setMoving(Wpressed || Spressed || Dpressed || Apressed);
                     avatar.draw(gc);
-                    drawArm(gc); // Dibujar el arma
+                    drawArm();
 
                     for (int i = 0; i < level.getWalls().size(); i++) {
                         level.getWalls().get(i).draw();
@@ -268,25 +263,19 @@ public class HelloController implements Initializable {
     public void drawLives() {
         new Thread(() -> {
             while (isAlive) {
-                if (avatar.getLives() == 5) {
-                    playerLives.setImage(heartsImage[4]);
-                } else if (avatar.getLives() == 4) {
-                    playerLives.setImage(heartsImage[3]);
-                } else if (avatar.getLives() == 3) {
-                    playerLives.setImage(heartsImage[2]);
-                } else if (avatar.getLives() == 2) {
-                    playerLives.setImage(heartsImage[1]);
-                } else if (avatar.getLives() == 1) {
-                    playerLives.setImage(heartsImage[0]);
-                } else {
-                    playerLives.setImage(heartsImage[5]);
+                Platform.runLater(() -> {
+                    int lives = avatar.getLives();
+                    if (lives >= 1 && lives <= 5) {
+                        playerLives.setImage(heartsImage[lives - 1]);
+                    } else {
+                        playerLives.setImage(heartsImage[5]); // Imagen de la calavera para vidas incorrectas
+                    }
+                });
+                try {
+                    Thread.sleep(20); // Esperar un tiempo antes de actualizar las vidas
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
                 }
-            }
-
-            try {
-                Thread.sleep(20);
-            } catch (InterruptedException e) {
-                throw new RuntimeException(e);
             }
         }).start();
     }
@@ -302,76 +291,33 @@ public class HelloController implements Initializable {
     public void drawBullets() {
         new Thread(() -> {
             while (isAlive) {
-                if (avatar.getArm().getAmmo() == 5) {
-                    playerBullets.setImage(bulletsImage[5]);
-                } else if (avatar.getArm().getAmmo() == 4) {
-                    playerBullets.setImage(bulletsImage[4]);
-                } else if (avatar.getArm().getAmmo() == 3) {
-                    playerBullets.setImage(bulletsImage[3]);
-                } else if (avatar.getArm().getAmmo() == 2) {
-                    playerBullets.setImage(bulletsImage[2]);
-                } else if (avatar.getArm().getAmmo() == 1) {
-                    playerBullets.setImage(bulletsImage[1]);
-                } else {
-                    playerBullets.setImage(bulletsImage[0]);
+                int ammo = avatar.getArm().getAmmo();
+                Platform.runLater(() -> {
+                    playerBullets.setImage(bulletsImage[ammo]);
+                });
+                try {
+                    Thread.sleep(100); // Esperar un tiempo antes de actualizar las balas
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
                 }
             }
-            try {
-                Thread.sleep(20);
-            } catch (InterruptedException e) {
-                throw new RuntimeException(e);
-            }
         }).start();
+    }
+
+    public void drawArm() {
+        Arm currentArm = getCurrentArm(currentLevel);
+        currentArm.draw(gc);
+    }
+
+    private Arm getCurrentArm(int currentLevelID) {
+        Level currentLevel = levels.get(currentLevelID);
+        Arm arm = new Arm(currentLevel.getId());
+        currentLevel.setArm(arm);
+        return currentLevel.getId() < 0 ? null : arm;
     }
 
     public boolean isOutside(double x, double y) {
         return x < -10 || y < -10 || x > canvas.getWidth() || y > canvas.getHeight();
     }
 
-    private void drawArm(GraphicsContext gc) {
-        Arm currentArm = getCurrentArm(); // Obtener el arma actual según el nivel
-
-        if (currentArm != null && !currentArm.isCollected()) {
-            // Dibujar el arma solo si está recolectada
-            currentArm.draw(gc);
-        }
-    }
-
-    private Arm getCurrentArm() {
-        int current = currentLevel;
-        Level currentLevel = levels.get(current);
-        Arm arm;
-
-        return switch (currentLevel.getId()) {
-            case 0 -> {
-                // Retornar el arma correspondiente al nivel 0
-                arm = new Arm(0);
-                currentLevel.setArm(arm);
-                yield arm;
-            }
-            case 1 -> {
-                // Retornar el arma correspondiente al nivel 1
-                arm = new Arm(1);
-                currentLevel.setArm(arm);
-                yield arm;
-            }
-            case 2 -> {
-                // Retornar el arma correspondiente al nivel 2
-                arm = new Arm(2);
-                currentLevel.setArm(arm);
-                yield arm;
-            }
-            default ->
-                // Retornar null si no hay un arma definida para el nivel actual
-                    null;
-        };
-    }
-
-
 }
-
-
-
-
-
-

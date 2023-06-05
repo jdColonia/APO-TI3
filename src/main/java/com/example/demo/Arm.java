@@ -15,7 +15,6 @@ public class Arm extends Drawing {
     private int ammo; // Número de balas disponibles en el cargador
     private int maxAmmo; // Capacidad máxima del cargador
     private int index; // Nivel actual
-    private boolean isCollected = false;
 
     String uri1 = "file:" + Objects.requireNonNull(HelloApplication.class.getResource("arm/arm-1.png")).getPath();
     String uri2 = "file:" + Objects.requireNonNull(HelloApplication.class.getResource("arm/arm-2.png")).getPath();
@@ -51,7 +50,7 @@ public class Arm extends Drawing {
             case 2 -> {
                 return Color.BLACK;
             }
-            default ->  {
+            default -> {
                 return Color.WHITE;
             }
         }
@@ -69,7 +68,6 @@ public class Arm extends Drawing {
             }
         }).start();
     }
-
 
     @Override
     public void draw(GraphicsContext gc) {
@@ -108,13 +106,4 @@ public class Arm extends Drawing {
         this.bullets = bullets;
     }
 
-    public boolean isCollected() {
-        return isCollected;
-    }
-
-    public void setCollected(boolean collected) {
-        isCollected = collected;
-    }
-
 }
-
