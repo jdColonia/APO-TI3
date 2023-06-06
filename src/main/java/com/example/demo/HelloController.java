@@ -40,6 +40,7 @@ public class HelloController implements Initializable {
     public int currentLevel = 0;
     private Image[] heartsImage;
     private Image[] bulletsImage;
+    private Arm currentArm;
 
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
@@ -63,6 +64,7 @@ public class HelloController implements Initializable {
         new Thread(e).start();
         l1.getEnemies().add(e);
         l1.getEnemies().add(new Enemy(new Vector(500, 300), TypeEnemy.SCORPION));
+        l1.setArm(new Arm(0));
         levels.add(l1);
 
         //Generar el segundo mapa
@@ -75,6 +77,7 @@ public class HelloController implements Initializable {
         new Thread(eLv2).start();
         l2.getEnemies().add(eLv2);
         l2.getEnemies().add(new Enemy(new Vector(1000, 700), TypeEnemy.SCORPION));
+        l2.setArm(new Arm(1));
         levels.add(l2);
 
         //Generar el tercer mapa
@@ -85,13 +88,13 @@ public class HelloController implements Initializable {
         new Thread(eLv3).start();
         l3.getEnemies().add(eLv3);
         l3.getEnemies().add(new Enemy(new Vector(100, 700), TypeEnemy.SCORPION));
+        l3.setArm(new Arm(2));
         levels.add(l3);
 
         draw();
     }
 
     private void onMouseMoved(MouseEvent e) {
-        System.out.println("moviendo");
         double relativePosition = e.getX() - avatar.pos.getX();
         avatar.setFacingRight(
                 relativePosition > 0
@@ -151,6 +154,11 @@ public class HelloController implements Initializable {
                 double distance = Math.sqrt(Math.pow(avatar.pos.getX() - arm.getX(), 2) +
                         Math.pow(avatar.pos.getY() - arm.getY(), 2));
                 if (distance < 50) {
+                    if (currentArm != null) {
+                        currentArm.setCollected(false);
+                        level.setArm(currentArm);
+                    }
+                    currentArm = arm;
                     avatar.setArm(arm);
                     arm.setCollected(true);
                     drawBullets();
@@ -210,8 +218,7 @@ public class HelloController implements Initializable {
                     avatar.pos.setY(canvas.getHeight());
                 }
 
-
-                //Colisiones
+                //Colisiones de balas con enemigos
                 if (avatar.getArm() != null) {
                     for (int i = 0; i < avatar.getArm().getBullets().size(); i++) {
                         Bullet bn = avatar.getArm().getBullets().get(i);
@@ -244,6 +251,28 @@ public class HelloController implements Initializable {
                     avatar.pos.setX(avatar.pos.getX() + 0.8);
                 }
 
+                // Colisiones con los muros
+                for (Wall wall : level.getWalls()) {
+                    if (avatar.isColliding(wall)) {
+                        // Ajustar la posición del avatar para evitar la colisión con el muro
+                        double overlapX = avatar.getOverlapX(wall);
+                        double overlapY = avatar.getOverlapY(wall);
+                        // Ajustar la posición del avatar para evitar la colisión con el muro
+                        if (overlapX < overlapY) {
+                            if (Apressed) {
+                                avatar.pos.setX(wall.getX() + 25);
+                            } else if (Dpressed) {
+                                avatar.pos.setX(wall.getX() - 25);
+                            }
+                        } else {
+                            if (Wpressed) {
+                                avatar.pos.setY(wall.getY() + 25);
+                            } else if (Spressed) {
+                                avatar.pos.setY(wall.getY() - 25);
+                            }
+                        }
+                    }
+                }
 
                 try {
                     Thread.sleep(5);
@@ -311,10 +340,11 @@ public class HelloController implements Initializable {
 
     public void drawArm() {
         Arm currentArm = getCurrentArm(currentLevel);
-        currentArm.draw(gc);
+        if (!currentArm.isCollected()) currentArm.draw(gc);
         new Thread(() -> {
             while (isAlive) {
-                if (avatar.getArm() != null && avatar.getArm().isCollected()) playerArm.setImage(avatar.getArm().getArmImage());
+                if (avatar.getArm() != null && avatar.getArm().isCollected())
+                    playerArm.setImage(avatar.getArm().getArmImage());
                 try {
                     Thread.sleep(100);
                 } catch (InterruptedException e) {
@@ -325,10 +355,7 @@ public class HelloController implements Initializable {
     }
 
     private Arm getCurrentArm(int currentLevelID) {
-        Level currentLevel = levels.get(currentLevelID);
-        Arm arm = new Arm(currentLevel.getId());
-        currentLevel.setArm(arm);
-        return currentLevel.getId() < 0 ? null : arm;
+        return levels.get(currentLevelID).getArm();
     }
 
     public boolean isOutside(double x, double y) {

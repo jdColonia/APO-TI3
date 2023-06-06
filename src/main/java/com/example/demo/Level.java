@@ -173,8 +173,4 @@ public class Level {
         this.arm = arm;
     }
 
-    public void removeArm() {
-        arm = null;
-    }
-
 }
