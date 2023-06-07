@@ -66,10 +66,12 @@ public class HelloController implements Initializable {
         Level l1 = new Level(0);
         l1.generateMap(canvas, l1.getId());
         l1.setColor(Color.WHITE);
-        Enemy e = new Enemy(new Vector(500, 200), TypeEnemy.SCORPION);
-        new Thread(e).start();
-        l1.getEnemies().add(e);
-        l1.getEnemies().add(new Enemy(new Vector(500, 300), TypeEnemy.SCORPION));
+        Enemy e1lv1 = new ChasingEnemy(new Vector(500, 200));
+        new Thread(e1lv1).start();
+        l1.getEnemies().add(e1lv1);
+        Enemy e2lv1 = new BidirectionalHorizontalEnemy(new Vector(525, 300));
+        l1.getEnemies().add(e2lv1);
+        new Thread(e2lv1).start();
         l1.setArm(new Arm(0));
         levels.add(l1);
 
@@ -77,12 +79,18 @@ public class HelloController implements Initializable {
         Level l2 = new Level(1);
         l2.generateMap(canvas, l2.getId());
         l2.setColor(Color.GRAY);
-        l2.getEnemies().add(new Enemy(new Vector(100, 100), TypeEnemy.SCORPION));
-        l2.getEnemies().add(new Enemy(new Vector(100, 700), TypeEnemy.SCORPION));
-        Enemy eLv2 = new Enemy(new Vector(1000, 80), TypeEnemy.SCORPION);
-        new Thread(eLv2).start();
-        l2.getEnemies().add(eLv2);
-        l2.getEnemies().add(new Enemy(new Vector(1000, 700), TypeEnemy.SCORPION));
+        Enemy e1Lv2 = new ChasingEnemy(new Vector(100, 100));
+        Enemy e2Lv2 = new BidirectionalVerticalEnemy(new Vector(100, 700));
+        Enemy e3Lv2 = new BidirectionalHorizontalEnemy(new Vector(1000, 80));
+        Enemy e4Lv2 = new BidirectionalHorizontalEnemy(new Vector(1000, 700));
+        new Thread(e1Lv2).start();
+        new Thread(e2Lv2).start();
+        new Thread(e3Lv2).start();
+        new Thread(e4Lv2).start();
+        l2.getEnemies().add(e1Lv2);
+        l2.getEnemies().add(e2Lv2);
+        l2.getEnemies().add(e3Lv2);
+        l2.getEnemies().add(e4Lv2);
         l2.setArm(new Arm(1));
         levels.add(l2);
 
@@ -90,10 +98,12 @@ public class HelloController implements Initializable {
         Level l3 = new Level(2);
         l3.generateMap(canvas, l3.getId());
         l3.setColor(Color.WHITE);
-        Enemy eLv3 = new Enemy(new Vector(700, 100), TypeEnemy.SCORPION);
-        new Thread(eLv3).start();
-        l3.getEnemies().add(eLv3);
-        l3.getEnemies().add(new Enemy(new Vector(100, 700), TypeEnemy.SCORPION));
+        Enemy e1Lv3 = new ChasingEnemy(new Vector(700, 100));
+        new Thread(e1Lv3).start();
+        l3.getEnemies().add(e1Lv3);
+        Enemy e2lv3 = new ChasingEnemy(new Vector(100, 700));
+        l3.getEnemies().add(e2lv3);
+        new Thread(e2lv3).start();
         l3.setArm(new Arm(2));
         levels.add(l3);
 
@@ -220,7 +230,10 @@ public class HelloController implements Initializable {
 
                             if (distance < 5) {
                                 avatar.getArm().getBullets().remove(i);
-                                level.getEnemies().remove(j);
+                                level.getEnemies().get(j).setLives(level.getEnemies().get(j).getLives() - 1);
+                                if (level.getEnemies().get(j).getLives() == 0) {
+                                    level.getEnemies().remove(j);
+                                }
                             }
                         }
                     }
@@ -231,6 +244,31 @@ public class HelloController implements Initializable {
                 updateAvatarPosition();
                 // Colisiones con los muros
                 checkWallCollisions();
+
+                for (int i = 0; i < level.getEnemies().size(); i++) {
+                    double distanceX;
+                    double distanceY;
+                    Enemy enemy = level.getEnemies().get(i);
+                    if (enemy instanceof ChasingEnemy) {
+                        distanceX = enemy.pos.getX() - avatar.pos.getX();
+                        distanceY = enemy.pos.getY() - avatar.pos.getY();
+                        if (distanceX != 0) {
+                            if (distanceX < 0) {
+                                enemy.pos.setX(enemy.pos.getX() + 0.3);
+                            } else {
+                                enemy.pos.setX(enemy.pos.getX() - 0.3);
+                            }
+                        }
+                        if (distanceY != 0) {
+                            if (distanceY < 0) {
+                                enemy.pos.setY(enemy.pos.getY() + 0.3);
+                            } else {
+                                enemy.pos.setY(enemy.pos.getY() - 0.3);
+                            }
+                        }
+                    }
+                }
+
                 try {
                     Thread.sleep(10);
                 } catch (InterruptedException e) {
