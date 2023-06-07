@@ -21,7 +21,7 @@ public class Avatar extends Drawing implements Runnable {
     public Avatar() {
         pos.setX(100);
         pos.setY(100);
-        lives = 5;
+        lives = 3;
         idle = new Image[8];
         for (int i = 1; i <= 8; i++) {
             String uri = "file:" + Objects.requireNonNull(HelloApplication.class.getResource("playerIdle/player-idle" + i + ".png")).getPath();

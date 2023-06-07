@@ -159,7 +159,7 @@ public class HelloController implements Initializable {
             case E -> {
                 int current = currentLevel;
                 Level level = levels.get(current); // Obtener el nivel actual
-                Arm arm = level.getArm(); // Obtener el armas del nivel
+                Arm arm = level.getArm(); // Obtener las armas del nivel
                 double distance = Math.sqrt(Math.pow(avatar.pos.getX() - arm.getX(), 2) +
                         Math.pow(avatar.pos.getY() - arm.getY(), 2));
                 if (distance < 50) {
@@ -233,8 +233,10 @@ public class HelloController implements Initializable {
                 checkWallCollisionsWithBullets();
                 // Movimiento del jugador
                 updateAvatarPosition();
-                // Colisiones con los muros
-                checkWallCollisions();
+                // Colisiones avatar con los muros
+                checkAvatarWallCollisions();
+                // Colisiones enemigo con los muros
+                checkEnemyWallCollisions();
 
                 for (int i = 0; i < level.getEnemies().size(); i++) {
                     double distanceX;
@@ -245,16 +247,16 @@ public class HelloController implements Initializable {
                         distanceY = enemy.pos.getY() - avatar.pos.getY();
                         if (distanceX != 0) {
                             if (distanceX < 0) {
-                                enemy.pos.setX(enemy.pos.getX() + 0.3);
+                                enemy.pos.setX(enemy.pos.getX() + 0.6);
                             } else {
-                                enemy.pos.setX(enemy.pos.getX() - 0.3);
+                                enemy.pos.setX(enemy.pos.getX() - 0.6);
                             }
                         }
                         if (distanceY != 0) {
                             if (distanceY < 0) {
-                                enemy.pos.setY(enemy.pos.getY() + 0.3);
+                                enemy.pos.setY(enemy.pos.getY() + 0.6);
                             } else {
-                                enemy.pos.setY(enemy.pos.getY() - 0.3);
+                                enemy.pos.setY(enemy.pos.getY() - 0.6);
                             }
                         }
                     }
@@ -383,7 +385,43 @@ public class HelloController implements Initializable {
     }
 
 
-    public void checkWallCollisions() {
+    public void checkEnemyWallCollisions() {
+        Level level = levels.get(currentLevel);
+
+        // Verificar colisiones con los muros
+        for (Wall wall : level.getWalls()) {
+            for (Enemy enemy : level.getEnemies()) {
+                if (enemy.isColliding(wall)) {
+                    // Obtener la superposición en el eje X
+                    double overlapX = enemy.getOverlapX(wall);
+                    // Obtener la superposición en el eje Y
+                    double overlapY = enemy.getOverlapY(wall);
+
+                    if (overlapX < overlapY) {
+                        // Colisión en el eje X
+                        if (enemy.pos.getX() > wall.getX()) {
+                            // Colisión en el lado derecho de la pared
+                            enemy.pos.setX(wall.getX() + wall.getRectangle().getWidth() + 25);
+                        } else if (enemy.pos.getX() < wall.getX()) {
+                            // Colisión en el lado izquierdo de la pared
+                            enemy.pos.setX(wall.getX() - 25);
+                        }
+                    } else {
+                        // Colisión en el eje Y
+                        if (enemy.pos.getY() > wall.getY()) {
+                            // Colisión en la parte inferior de la pared y.
+                            enemy.pos.setY(wall.getY() + wall.getRectangle().getHeight() + 25);
+                        } else if (enemy.pos.getY() < wall.getY()) {
+                            // Colisión en la parte superior de la pared
+                            enemy.pos.setY(wall.getY() - 25);
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    public void checkAvatarWallCollisions() {
         Level level = levels.get(currentLevel);
 
         // Verificar colisiones con los muros
@@ -440,8 +478,6 @@ public class HelloController implements Initializable {
             String uri = "file:" + Objects.requireNonNull(HelloApplication.class.getResource("heartLabel/" + i + "hearts.png")).getPath();
             heartsImage[i - 1] = new Image(uri);
         }
-        String uri = "file:" + Objects.requireNonNull(HelloApplication.class.getResource("heartLabel/skull-0lives.png")).getPath();
-        heartsImage[5] = new Image(uri);
     }
 
     public void drawLives() {

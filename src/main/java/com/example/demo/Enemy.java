@@ -23,11 +23,21 @@ public abstract class Enemy extends Drawing implements Runnable {
     public void run() {
     }
 
+    public boolean isColliding(Wall wall) { return false; }
+
+    public double getOverlapX(Wall wall) {
+        return 0;
+    }
+
     public int getLives() {
         return lives;
     }
 
     public void setLives(int lives) {
         this.lives = lives;
+    }
+
+    public double getOverlapY(Wall wall) {
+        return 0;
     }
 }
