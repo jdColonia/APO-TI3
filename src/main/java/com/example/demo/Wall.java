@@ -62,7 +62,7 @@ public class Wall {
     }
 
     public void setDamage(int damage) {
-        this.damage = damage;
+        this.damage -= damage;
     }
 
     public Rectangle getRectangle() {

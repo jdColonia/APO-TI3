@@ -3,6 +3,7 @@ package com.example.demo;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
+import javafx.geometry.BoundingBox;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.control.Label;
@@ -235,6 +236,8 @@ public class HelloController implements Initializable {
                         }
                     }
                 }
+                // Colisiones de las balas con los muros
+                checkWallCollisionsWithBullets();
 
                 // Movimiento del jugador
                 updateAvatarPosition();
@@ -250,6 +253,61 @@ public class HelloController implements Initializable {
         });
         ae.start();
     }
+
+    public void chec2kWallCollisionsWithBullets() {
+        Level level = levels.get(currentLevel);
+
+        // Verificar colisiones con los muros
+        if (avatar.getArm() != null) {
+            for (int i = 0; i < avatar.getArm().getBullets().size(); i++) {
+                Bullet bullet = avatar.getArm().getBullets().get(i);
+                for (int j = 0; j < level.getWalls().size(); j++) {
+                    Wall wall = level.getWalls().get(j);
+
+                    double distance = Math.sqrt(
+                            Math.pow(wall.getX() - bullet.pos.getX(), 2) +
+                                    Math.pow(wall.getY() - bullet.pos.getY(), 2)
+                    );
+
+                    if (distance < 25) {
+                        avatar.getArm().getBullets().remove(i);
+                        level.getWalls().get(j).setDamage(1);
+                        if (level.getWalls().get(j).getDamage() <= 0) level.getWalls().remove(j);
+                        break;
+                    }
+                }
+            }
+        }
+    }
+
+    public void checkWallCollisionsWithBullets() {
+        Level level = levels.get(currentLevel);
+
+        // Verificar colisiones con los muros
+        if (avatar.getArm() != null) {
+            ArrayList<Bullet> bulletsToRemove = new ArrayList<>();
+            for (Bullet bullet : avatar.getArm().getBullets()) {
+                BoundingBox bulletBoundingBox = new BoundingBox(
+                        bullet.pos.getX(), bullet.pos.getY(), 10, 10);
+
+                for (Wall wall : level.getWalls()) {
+                    BoundingBox wallBoundingBox = new BoundingBox(
+                            wall.getX(), wall.getY(),
+                            wall.getRectangle().getWidth(), wall.getRectangle().getHeight());
+
+                    if (bulletBoundingBox.intersects(wallBoundingBox)) {
+                        bulletsToRemove.add(bullet);
+                        wall.setDamage(1);
+                        if (wall.getDamage() <= 0) level.getWalls().remove(wall);
+                        break; // Salir del bucle de las paredes
+                    }
+                }
+            }
+
+            avatar.getArm().getBullets().removeAll(bulletsToRemove);
+        }
+    }
+
 
     public void checkWallCollisions() {
         Level level = levels.get(currentLevel);

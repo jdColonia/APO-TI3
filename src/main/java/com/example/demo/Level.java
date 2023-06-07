@@ -39,7 +39,7 @@ public class Level {
         }
 
         //horizontal
-        for (int i = 350; i < 600; i += 50) { // Funciona
+        for (int i = 400; i < 600; i += 50) { // Funciona
             Wall wall1 = new Wall(i, 100, canvas, index);
             walls.add(wall1);
         }
@@ -49,12 +49,6 @@ public class Level {
             Wall wall1 = new Wall(800, i, canvas, index);
             walls.add(wall1);
         }
-
-        //Pared vertical fondo medio
-//        for (int i = 350; i < 400; i += 50) {
-//            Wall wall1 = new Wall(800, i, canvas);
-//            walls.add(wall1);
-//        }
 
         //Pared vertical fondo abajo
         for (int i = 550; i <= canvas.getHeight(); i += 50) { // Funciona
@@ -114,7 +108,7 @@ public class Level {
             walls.add(wall1);
         }
 
-        for (int i = 650; i >= 550; i -= 50) { // Funciona
+        for (int i = 600; i >= 550; i -= 50) { // Funciona
             Wall wall1 = new Wall(i, 350, canvas, index);
             walls.add(wall1);
         }
