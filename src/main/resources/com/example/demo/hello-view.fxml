@@ -1,14 +1,18 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import javafx.scene.canvas.*?>
-<?import javafx.scene.image.*?>
-<?import javafx.scene.layout.*?>
-
-<AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="800.0" prefWidth="1200.0" xmlns="http://javafx.com/javafx/17.0.2-ea" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.example.demo.HelloController">
+<?import javafx.scene.canvas.Canvas?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.AnchorPane?>
+<AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="800.0"
+            prefWidth="1200.0" xmlns="http://javafx.com/javafx/17.0.2-ea" xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="com.example.demo.HelloController">
     <children>
-        <Canvas fx:id="canvas" height="800.0" width="1200.0" />
-      <ImageView fx:id="playerLives" fitHeight="33.0" fitWidth="130.0" layoutX="16.0" layoutY="13.0" pickOnBounds="true" preserveRatio="true" />
-      <ImageView fx:id="playerBullets" fitHeight="33.0" fitWidth="85.0" layoutX="61.0" layoutY="55.0" pickOnBounds="true" preserveRatio="true" />
-      <ImageView fx:id="playerArm" fitHeight="33.0" fitWidth="35.0" layoutX="16.0" layoutY="55.0" pickOnBounds="true" preserveRatio="true" />
+        <Canvas fx:id="canvas" height="800.0" width="1200.0"/>
+        <ImageView fx:id="playerLives" fitHeight="33.0" fitWidth="130.0" layoutX="16.0" layoutY="13.0"
+                   pickOnBounds="true" preserveRatio="true"/>
+        <ImageView fx:id="playerBullets" fitHeight="33.0" fitWidth="85.0" layoutX="61.0" layoutY="55.0"
+                   pickOnBounds="true" preserveRatio="true"/>
+        <ImageView fx:id="playerArm" fitHeight="33.0" fitWidth="35.0" layoutX="16.0" layoutY="55.0" pickOnBounds="true"
+                   preserveRatio="true"/>
     </children>
 </AnchorPane>

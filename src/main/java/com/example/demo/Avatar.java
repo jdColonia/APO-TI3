@@ -15,6 +15,7 @@ public class Avatar extends Drawing implements Runnable {
     private boolean isMoving;
     private boolean isFacingRight = true;
     private int lives;
+    private boolean invincible;
     private Arm arm;
 
     public Avatar() {
@@ -114,6 +115,14 @@ public class Avatar extends Drawing implements Runnable {
 
     public void setFacingRight(boolean facingRight) {
         isFacingRight = facingRight;
+    }
+
+    public boolean isInvincible() {
+        return invincible;
+    }
+
+    public void setInvincible(boolean invincible) {
+        this.invincible = invincible;
     }
 
     public Arm getArm() {

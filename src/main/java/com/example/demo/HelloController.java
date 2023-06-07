@@ -12,6 +12,7 @@ import javafx.scene.image.ImageView;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.paint.Color;
+import javafx.stage.Stage;
 
 import java.net.URL;
 import java.util.ArrayList;
@@ -211,33 +212,23 @@ public class HelloController implements Initializable {
                     for (int i = 0; i < level.getEnemies().size(); i++) {
                         level.getEnemies().get(i).draw(gc);
                     }
+
+                    // Si el jugador ha perdido todas sus vidas se muestra pantalla de game over
+                    if (avatar.getLives() <= 0) {
+                        isAlive = false;
+                        Stage stage = (Stage) canvas.getScene().getWindow();
+                        stage.close();
+                        HelloApplication.openWindow("exitScreen-view.fxml");
+                    }
+
                 });
 
                 // Colisiones del jugador con el portal y los límites del mapa
                 checkAvatarCollisionsWithLimitMapAndPortal();
-
                 //Colisiones de balas con enemigos
-                if (avatar.getArm() != null) {
-                    for (int i = 0; i < avatar.getArm().getBullets().size(); i++) {
-                        Bullet bn = avatar.getArm().getBullets().get(i);
-                        for (int j = 0; j < level.getEnemies().size(); j++) {
-                            Enemy en = level.getEnemies().get(j);
-
-                            double distance = Math.sqrt(
-                                    Math.pow(en.pos.getX() - bn.pos.getX(), 2) +
-                                            Math.pow(en.pos.getY() - bn.pos.getY(), 2)
-                            );
-
-                            if (distance < 5) {
-                                avatar.getArm().getBullets().remove(i);
-                                level.getEnemies().get(j).setLives(level.getEnemies().get(j).getLives() - 1);
-                                if (level.getEnemies().get(j).getLives() == 0) {
-                                    level.getEnemies().remove(j);
-                                }
-                            }
-                        }
-                    }
-                }
+                checkEnemyCollisionWithBullets();
+                // Colisiones entre el avatar y el enemigo
+                checkEnemyCollisionWithAvatar();
                 // Colisiones de las balas con los muros
                 checkWallCollisionsWithBullets();
                 // Movimiento del jugador
@@ -302,10 +293,66 @@ public class HelloController implements Initializable {
             BoundingBox portalBoundingBox = new BoundingBox(
                     portal.getX(), portal.getY(), 80, 80);
             if (avatarBoundingBox.intersects(portalBoundingBox) && checkEnemyCount()) {
-               currentLevel++;
+                currentLevel++;
             }
         }
     }
+
+    public void checkEnemyCollisionWithBullets() {
+        Level level = levels.get(currentLevel);
+
+        if (avatar.getArm() != null) {
+            for (int i = 0; i < avatar.getArm().getBullets().size(); i++) {
+                Bullet bullet = avatar.getArm().getBullets().get(i);
+                for (int j = 0; j < level.getEnemies().size(); j++) {
+                    Enemy enemy = level.getEnemies().get(j);
+
+                    BoundingBox bulletBoundingBox = new BoundingBox(
+                            bullet.pos.getX(), bullet.pos.getY(), 10, 10);
+                    BoundingBox enemyBoundingBox = new BoundingBox(
+                            enemy.pos.getX(), enemy.pos.getY(), 50, 50);
+
+                    if (bulletBoundingBox.intersects(enemyBoundingBox)) {
+                        avatar.getArm().getBullets().remove(i);
+                        level.getEnemies().get(j).setLives(level.getEnemies().get(j).getLives() - 1);
+                        if (level.getEnemies().get(j).getLives() == 0) level.getEnemies().remove(j);
+                        break;
+                    }
+                }
+            }
+        }
+    }
+
+    public void checkEnemyCollisionWithAvatar() {
+        Level level = levels.get(currentLevel);
+
+        for (int j = 0; j < level.getEnemies().size(); j++) {
+            Enemy enemy = level.getEnemies().get(j);
+
+            BoundingBox avatarBoundingBox = (BoundingBox) avatar.getBoundsInParent();
+
+            BoundingBox enemyBoundingBox = new BoundingBox(
+                    enemy.pos.getX(), enemy.pos.getY(), 50, 50);
+
+            if (avatarBoundingBox.intersects(enemyBoundingBox)) {
+                if (!avatar.isInvincible() && avatar.getLives() > 0) {
+                    avatar.setInvincible(true);
+                    avatar.setLives(avatar.getLives() - 1);
+                    // Agregar un retraso antes de volver a ser vulnerable
+                    new Thread(() -> {
+                        try {
+                            Thread.sleep(1000);
+                        } catch (InterruptedException e) {
+                            e.printStackTrace();
+                        }
+                        avatar.setInvincible(false);
+                    }).start();
+                }
+                break;
+            }
+        }
+    }
+
 
     public void checkWallCollisionsWithBullets() {
         Level level = levels.get(currentLevel);
