@@ -23,6 +23,7 @@ public class HelloController implements Initializable {
 
     @FXML
     private Canvas canvas;
+
     @FXML
     private ImageView playerBullets;
 
@@ -179,8 +180,10 @@ public class HelloController implements Initializable {
                     avatar.draw(gc);
                     // Dibujar el arma
                     drawArm();
-                    // Dibujar el portal
-                    portal.draw(gc);
+                    // Dibujar el portal solo si no quedan enemigos en el nivel
+                    if (checkEnemyCount() && currentLevel != 2) {
+                        portal.draw(gc);
+                    }
 
                     for (int i = 0; i < level.getWalls().size(); i++) {
                         level.getWalls().get(i).draw();
@@ -200,23 +203,8 @@ public class HelloController implements Initializable {
                     }
                 });
 
-                //Calculos geometricos
-
-                //Paredes
-                if (avatar.pos.getX() < 25) {
-                    avatar.pos.setX(25);
-                }
-                if (avatar.pos.getY() > canvas.getHeight() - 25) {
-                    avatar.pos.setY(canvas.getHeight() - 25);
-                }
-                if (avatar.pos.getY() < 0) {
-                    switch (currentLevel) {
-                        case 0 -> currentLevel = 1;
-                        case 1 -> currentLevel = 2;
-                        case 2 -> currentLevel = 0;
-                    }
-                    avatar.pos.setY(canvas.getHeight());
-                }
+                // Colisiones del jugador con el portal y los límites del mapa
+                checkAvatarCollisionsWithLimitMapAndPortal();
 
                 //Colisiones de balas con enemigos
                 if (avatar.getArm() != null) {
@@ -253,28 +241,30 @@ public class HelloController implements Initializable {
         ae.start();
     }
 
-    public void chec2kWallCollisionsWithBullets() {
-        Level level = levels.get(currentLevel);
-
-        // Verificar colisiones con los muros
-        if (avatar.getArm() != null) {
-            for (int i = 0; i < avatar.getArm().getBullets().size(); i++) {
-                Bullet bullet = avatar.getArm().getBullets().get(i);
-                for (int j = 0; j < level.getWalls().size(); j++) {
-                    Wall wall = level.getWalls().get(j);
-
-                    double distance = Math.sqrt(
-                            Math.pow(wall.getX() - bullet.pos.getX(), 2) +
-                                    Math.pow(wall.getY() - bullet.pos.getY(), 2)
-                    );
-
-                    if (distance < 25) {
-                        avatar.getArm().getBullets().remove(i);
-                        level.getWalls().get(j).setDamage(1);
-                        if (level.getWalls().get(j).getDamage() <= 0) level.getWalls().remove(j);
-                        break;
-                    }
-                }
+    public void checkAvatarCollisionsWithLimitMapAndPortal() {
+        // Limite izquierdo del mapa
+        if (avatar.pos.getX() < 25) {
+            avatar.pos.setX(25);
+        }
+        // Limite derecho del mapa
+        if (avatar.pos.getX() > canvas.getWidth() - 25) {
+            avatar.pos.setX(canvas.getWidth() - 25);
+        }
+        // Limite inferior del mapa
+        if (avatar.pos.getY() > canvas.getHeight() - 25) {
+            avatar.pos.setY(canvas.getHeight() - 25);
+        }
+        // Limite superior del mapa
+        if (avatar.pos.getY() < 25) {
+            avatar.pos.setY(25);
+        }
+        if (currentLevel != 2) {
+            // Colisión con el portal
+            BoundingBox avatarBoundingBox = (BoundingBox) avatar.getBoundsInParent();
+            BoundingBox portalBoundingBox = new BoundingBox(
+                    portal.getX(), portal.getY(), 80, 80);
+            if (avatarBoundingBox.intersects(portalBoundingBox) && checkEnemyCount()) {
+               currentLevel++;
             }
         }
     }
@@ -432,6 +422,12 @@ public class HelloController implements Initializable {
     private Arm getCurrentArm(int currentLevelID) {
         return levels.get(currentLevelID).getArm();
     }
+
+    private boolean checkEnemyCount() {
+        Level level = levels.get(currentLevel);
+        return level.getEnemies().isEmpty();
+    }
+
 
     public boolean isOutside(double x, double y) {
         return x < -10 || y < -10 || x > canvas.getWidth() || y > canvas.getHeight();
