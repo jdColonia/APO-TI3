@@ -1,5 +1,7 @@
 package com.example.demo;
 
+import javafx.geometry.BoundingBox;
+import javafx.geometry.Bounds;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.image.Image;
 
@@ -24,14 +26,11 @@ public class Avatar extends Drawing implements Runnable {
             String uri = "file:" + Objects.requireNonNull(HelloApplication.class.getResource("playerIdle/player-idle" + i + ".png")).getPath();
             idle[i - 1] = new Image(uri);
         }
-
         run = new Image[4];
         for (int i = 1; i <= 4; i++) {
             String uri = "file:" + Objects.requireNonNull(HelloApplication.class.getResource("playerRun/player-run" + i + ".png")).getPath();
             run[i - 1] = new Image(uri);
         }
-
-
     }
 
     @Override
@@ -58,58 +57,40 @@ public class Avatar extends Drawing implements Runnable {
         }
     }
 
+    // Verifica si el avatar está colisionando con el muro
     public boolean isColliding(Wall wall) {
-        double avatarLeft = pos.getX() - 25;
-        double avatarRight = pos.getX() + 25;
-        double avatarTop = pos.getY() - 25;
-        double avatarBottom = pos.getY() + 25;
-        double wallLeft = wall.getX();
-        double wallRight = wall.getX() + 50;
-        double wallTop = wall.getY();
-        double wallBottom = wall.getY() + 50;
-        if (avatarRight > wallLeft && avatarLeft < wallRight &&
-                avatarBottom > wallTop && avatarTop < wallBottom) {
-            System.out.println("Hay colision-----------------------");
-        } else {
-            System.out.println("No hay colision");
-        }
-        return avatarRight > wallLeft && avatarLeft < wallRight &&
-                avatarBottom > wallTop && avatarTop < wallBottom;
-
+        Bounds avatarBounds = getBoundsInParent();
+        Bounds wallBounds = wall.getRectangle().getBoundsInParent();
+        return avatarBounds.intersects(wallBounds);
     }
 
+    // Calcula el solapamiento en el eje X entre el avatar y el muro
     public double getOverlapX(Wall wall) {
-        double avatarLeft = pos.getX() - 25;
-        double avatarRight = pos.getX() + 25;
-
-        double wallLeft = wall.getX();
-        double wallRight = wall.getX() + 50;
-
-        if (avatarRight > wallLeft) {
-            return avatarRight - wallLeft;
-        } else if (avatarLeft < wallRight) {
-            return avatarLeft - wallRight;
+        Bounds avatarBounds = getBoundsInParent();
+        Bounds wallBounds = wall.getRectangle().getBoundsInParent();
+        // Calcula el solapamiento en el eje X
+        if (avatarBounds.getMinX() < wallBounds.getMinX()) {
+            // El avatar está a la izquierda del objeto
+            return avatarBounds.getMaxX() - wallBounds.getMinX();
         } else {
-            return 0;
+            // El avatar está a la derecha del objeto
+            return wallBounds.getMaxX() - avatarBounds.getMinX();
         }
     }
 
+    // Calcula el solapamiento en el eje Y entre el avatar y el muro
     public double getOverlapY(Wall wall) {
-        double avatarTop = pos.getY() - 25;
-        double avatarBottom = pos.getY() + 25;
-
-        double wallTop = wall.getY();
-        double wallBottom = wall.getY() + 50;
-
-        if (avatarBottom > wallTop) {
-            return avatarBottom - wallTop;
-        } else if (avatarTop < wallBottom) {
-            return avatarTop - wallBottom;
+        Bounds avatarBounds = getBoundsInParent();
+        Bounds wallBounds = wall.getRectangle().getBoundsInParent();
+        // Calcula el solapamiento en el eje Y
+        if (avatarBounds.getMinY() < wallBounds.getMinY()) {
+            // El avatar está arriba del objeto
+            return avatarBounds.getMaxY() - wallBounds.getMinY();
         } else {
-            return 0;
+            // El avatar está abajo del objeto
+            return wallBounds.getMaxY() - avatarBounds.getMinY();
         }
     }
-
 
     public int getLives() {
         return lives;
@@ -142,4 +123,9 @@ public class Avatar extends Drawing implements Runnable {
     public void setArm(Arm arm) {
         this.arm = arm;
     }
+
+    public Bounds getBoundsInParent() {
+        return new BoundingBox(pos.getX() - 25, pos.getY() - 25, 50, 50);
+    }
+
 }

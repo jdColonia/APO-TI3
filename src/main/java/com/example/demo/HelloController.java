@@ -124,9 +124,7 @@ public class HelloController implements Initializable {
     private boolean Spressed = false;
     private boolean Dpressed = false;
 
-
     private Avatar avatar;
-
 
     public void onKeyReleased(KeyEvent event) {
         switch (event.getCode()) {
@@ -238,44 +236,13 @@ public class HelloController implements Initializable {
                     }
                 }
 
-                if (Wpressed) {
-                    avatar.pos.setY(avatar.pos.getY() - 0.8);
-                }
-                if (Apressed) {
-                    avatar.pos.setX(avatar.pos.getX() - 0.8);
-                }
-                if (Spressed) {
-                    avatar.pos.setY(avatar.pos.getY() + 0.8);
-                }
-                if (Dpressed) {
-                    avatar.pos.setX(avatar.pos.getX() + 0.8);
-                }
-
+                // Movimiento del jugador
+                updateAvatarPosition();
                 // Colisiones con los muros
-                for (Wall wall : level.getWalls()) {
-                    if (avatar.isColliding(wall)) {
-                        // Ajustar la posición del avatar para evitar la colisión con el muro
-                        double overlapX = avatar.getOverlapX(wall);
-                        double overlapY = avatar.getOverlapY(wall);
-                        // Ajustar la posición del avatar para evitar la colisión con el muro
-                        if (overlapX < overlapY) {
-                            if (Apressed) {
-                                avatar.pos.setX(wall.getX() + 25);
-                            } else if (Dpressed) {
-                                avatar.pos.setX(wall.getX() - 25);
-                            }
-                        } else {
-                            if (Wpressed) {
-                                avatar.pos.setY(wall.getY() + 25);
-                            } else if (Spressed) {
-                                avatar.pos.setY(wall.getY() - 25);
-                            }
-                        }
-                    }
-                }
+                checkWallCollisions();
 
                 try {
-                    Thread.sleep(5);
+                    Thread.sleep(10);
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                 }
@@ -283,6 +250,57 @@ public class HelloController implements Initializable {
         });
         ae.start();
     }
+
+    public void checkWallCollisions() {
+        Level level = levels.get(currentLevel);
+
+        // Verificar colisiones con los muros
+        for (Wall wall : level.getWalls()) {
+            if (avatar.isColliding(wall)) {
+                // Obtener la superposición en el eje X
+                double overlapX = avatar.getOverlapX(wall);
+                // Obtener la superposición en el eje Y
+                double overlapY = avatar.getOverlapY(wall);
+
+                if (overlapX < overlapY) {
+                    // Colisión en el eje X
+                    if (Apressed && !Dpressed && avatar.pos.getX() > wall.getX()) {
+                        // Colisión en el lado derecho de la pared
+                        avatar.pos.setX(wall.getX() + wall.getRectangle().getWidth() + 25);
+                    } else if (Dpressed && !Apressed && avatar.pos.getX() < wall.getX()) {
+                        // Colisión en el lado izquierdo de la pared
+                        avatar.pos.setX(wall.getX() - 25);
+                    }
+                } else {
+                    // Colisión en el eje Y
+                    if (Wpressed && !Spressed && avatar.pos.getY() > wall.getY()) {
+                        // Colisión en la parte inferior de la pared y.
+                        avatar.pos.setY(wall.getY() + wall.getRectangle().getHeight() + 25);
+                    } else if (Spressed && !Wpressed && avatar.pos.getY() < wall.getY()) {
+                        // Colisión en la parte superior de la pared
+                        avatar.pos.setY(wall.getY() - 25);
+                    }
+                }
+            }
+        }
+    }
+
+    public void updateAvatarPosition() {
+        double speed = 1;
+        if (Wpressed) {
+            avatar.pos.setY(avatar.pos.getY() - speed);
+        }
+        if (Apressed) {
+            avatar.pos.setX(avatar.pos.getX() - speed);
+        }
+        if (Spressed) {
+            avatar.pos.setY(avatar.pos.getY() + speed);
+        }
+        if (Dpressed) {
+            avatar.pos.setX(avatar.pos.getX() + speed);
+        }
+    }
+
 
     public void loadHeartsImage() {
         heartsImage = new Image[6];
