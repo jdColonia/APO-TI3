@@ -41,7 +41,9 @@ public class HelloController implements Initializable {
     public int currentLevel = 0;
     private Image[] heartsImage;
     private Image[] bulletsImage;
+    private Avatar avatar;
     private Arm currentArm;
+    private Portal portal;
 
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
@@ -55,6 +57,8 @@ public class HelloController implements Initializable {
         loadBulletsImage();
         avatar = new Avatar();
         new Thread(avatar).start(); // Esto ejecuta el código dentro de run() en paralelo
+        portal = new Portal();
+        new Thread(portal).start();
         levels = new ArrayList<>();
 
         //Generar el primer mapa
@@ -103,8 +107,6 @@ public class HelloController implements Initializable {
     }
 
     private void onMousePressed(MouseEvent e) {
-        System.out.println("X: " + e.getX() + "Y: " + e.getY());
-
         double diffX = e.getX() - avatar.pos.getX() - 25;
         double diffY = e.getY() - avatar.pos.getY() - 25;
         Vector diff = new Vector(diffX, diffY);
@@ -114,9 +116,7 @@ public class HelloController implements Initializable {
         if (avatar.getArm() != null && avatar.getArm().getAmmo() > 0) {
             avatar.getArm().shoot(new Vector(avatar.pos.getX() + 25, avatar.pos.getY() + 25), diff);
         }
-
     }
-
 
     private boolean isAlive = true;
 
@@ -124,8 +124,6 @@ public class HelloController implements Initializable {
     private boolean Wpressed = false;
     private boolean Spressed = false;
     private boolean Dpressed = false;
-
-    private Avatar avatar;
 
     public void onKeyReleased(KeyEvent event) {
         switch (event.getCode()) {
@@ -179,7 +177,10 @@ public class HelloController implements Initializable {
                     gc.fillRect(canvas.getWidth(), 0, 10, 10);
                     avatar.setMoving(Wpressed || Spressed || Dpressed || Apressed);
                     avatar.draw(gc);
+                    // Dibujar el arma
                     drawArm();
+                    // Dibujar el portal
+                    portal.draw(gc);
 
                     for (int i = 0; i < level.getWalls().size(); i++) {
                         level.getWalls().get(i).draw();
@@ -238,12 +239,10 @@ public class HelloController implements Initializable {
                 }
                 // Colisiones de las balas con los muros
                 checkWallCollisionsWithBullets();
-
                 // Movimiento del jugador
                 updateAvatarPosition();
                 // Colisiones con los muros
                 checkWallCollisions();
-
                 try {
                     Thread.sleep(10);
                 } catch (InterruptedException e) {
