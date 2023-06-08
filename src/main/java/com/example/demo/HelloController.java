@@ -224,7 +224,14 @@ public class HelloController implements Initializable {
                         isAlive = false;
                         Stage stage = (Stage) canvas.getScene().getWindow();
                         stage.close();
-                        HelloApplication.openWindow("exitScreen-view.fxml");
+                        HelloApplication.openWindow("gameOver-view.fxml");
+                    }
+
+                    if (currentLevel == 2 && checkEnemyCount()) {
+                        isAlive = false;
+                        Stage stage = (Stage) canvas.getScene().getWindow();
+                        stage.close();
+                        HelloApplication.openWindow("win-view.fxml");
                     }
 
                 });

@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.image.*?>
+<?import javafx.scene.layout.*?>
+
+<AnchorPane prefHeight="450.0" prefWidth="800.0" xmlns="http://javafx.com/javafx/17.0.2-ea" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.example.demo.GameOverController">
+    <children>
+        <ImageView fitHeight="450.0" fitWidth="800.0" pickOnBounds="true" preserveRatio="true">
+            <image>
+                <Image url="@gameOverScreen.png" />
+            </image>
+        </ImageView>
+      <Button fx:id="waitingBtn" mnemonicParsing="false" onAction="#gameOver" prefHeight="450.0" prefWidth="800.0" style="-fx-background-color: TRANSPARENT;" />
+    </children>
+</AnchorPane>
