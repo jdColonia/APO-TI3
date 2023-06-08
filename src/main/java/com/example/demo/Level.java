@@ -33,7 +33,7 @@ public class Level {
     public void generateMap(Canvas canvas, int index) {
         walls = new ArrayList<>();
 
-        for (int i = 350; i >= 100; i -= 50) { // Funciona
+        for (int i = 350; i >= 200; i -= 50) { // Funciona
             Wall wall1 = new Wall(350, i, canvas, index);
             walls.add(wall1);
         }
@@ -82,7 +82,7 @@ public class Level {
 
         //Pared vertical medio abajo
         for (int i = 450; i <= 450; i += 50) { // Funciona
-            Wall wall1 = new Wall(450, i, canvas, index);
+            Wall wall1 = new Wall(300, i, canvas, index);
             walls.add(wall1);
         }
 
@@ -108,12 +108,12 @@ public class Level {
             walls.add(wall1);
         }
 
-        for (int i = 600; i >= 550; i -= 50) { // Funciona
+        for (int i = 55; i >= 550; i -= 50) { // Funciona
             Wall wall1 = new Wall(i, 350, canvas, index);
             walls.add(wall1);
         }
 
-        for (int i = 700; i < 1000; i += 50) { // Funciona
+        for (int i = 750; i < 1000; i += 50) { // Funciona
             Wall wall1 = new Wall(i, 350, canvas, index);
             walls.add(wall1);
         }

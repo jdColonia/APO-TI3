@@ -100,11 +100,17 @@ public class HelloController implements Initializable {
         l3.generateMap(canvas, l3.getId());
         l3.setColor(Color.WHITE);
         Enemy e1Lv3 = new ChasingEnemy(new Vector(700, 100));
+        Enemy e2lv3 = new ChasingEnemy(new Vector(150, 700));
+        Enemy e3lv3 = new ChasingEnemy(new Vector(100, 150));
+        Enemy e4lv3 = new ChasingEnemy(new Vector(750, 150));
         new Thread(e1Lv3).start();
-        l3.getEnemies().add(e1Lv3);
-        Enemy e2lv3 = new ChasingEnemy(new Vector(100, 700));
-        l3.getEnemies().add(e2lv3);
         new Thread(e2lv3).start();
+        new Thread(e3lv3).start();
+        new Thread(e4lv3).start();
+        l3.getEnemies().add(e1Lv3);
+        l3.getEnemies().add(e2lv3);
+        l3.getEnemies().add(e3lv3);
+        l3.getEnemies().add(e4lv3);
         l3.setArm(new Arm(2));
         levels.add(l3);
 
