@@ -15,9 +15,7 @@ import javafx.scene.paint.Color;
 import javafx.stage.Stage;
 
 import java.net.URL;
-import java.util.ArrayList;
-import java.util.Objects;
-import java.util.ResourceBundle;
+import java.util.*;
 
 public class HelloController implements Initializable {
 
@@ -46,6 +44,8 @@ public class HelloController implements Initializable {
     private Avatar avatar;
     private Arm currentArm;
     private Portal portal;
+    private ArrayList<Double> enemyXCoordinates;
+    private ArrayList<Double> enemyYCoordinates;
 
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
@@ -57,6 +57,8 @@ public class HelloController implements Initializable {
         canvas.setOnMouseMoved(this::onMouseMoved);
         loadHeartsImage();
         loadBulletsImage();
+        enemyXCoordinates = new ArrayList<>(Arrays.asList(700.0, 150.0, 100.0, 750.0));
+        enemyYCoordinates = new ArrayList<>(Arrays.asList(100.0, 700.0, 150.0, 150.0));
         avatar = new Avatar();
         new Thread(avatar).start(); // Esto ejecuta el código dentro de run() en paralelo
         portal = new Portal();
@@ -67,12 +69,13 @@ public class HelloController implements Initializable {
         Level l1 = new Level(0);
         l1.generateMap(canvas, l1.getId());
         l1.setColor(Color.WHITE);
-        Enemy e1lv1 = new ChasingEnemy(new Vector(500, 200));
-        new Thread(e1lv1).start();
-        l1.getEnemies().add(e1lv1);
+        int randomIndex = new Random().nextInt(enemyXCoordinates.size());
+        Enemy e1lv1 = new ChasingEnemy(new Vector(enemyXCoordinates.get(randomIndex), enemyYCoordinates.get(randomIndex)));
         Enemy e2lv1 = new BidirectionalHorizontalEnemy(new Vector(525, 300));
-        l1.getEnemies().add(e2lv1);
+        new Thread(e1lv1).start();
         new Thread(e2lv1).start();
+        l1.getEnemies().add(e1lv1);
+        l1.getEnemies().add(e2lv1);
         l1.setArm(new Arm(0));
         levels.add(l1);
 
@@ -80,7 +83,8 @@ public class HelloController implements Initializable {
         Level l2 = new Level(1);
         l2.generateMap(canvas, l2.getId());
         l2.setColor(Color.GRAY);
-        Enemy e1Lv2 = new ChasingEnemy(new Vector(100, 100));
+        int randomIndex2 = new Random().nextInt(enemyXCoordinates.size());
+        Enemy e1Lv2 = new ChasingEnemy(new Vector(enemyXCoordinates.get(randomIndex2), enemyYCoordinates.get(randomIndex2)));
         Enemy e2Lv2 = new BidirectionalVerticalEnemy(new Vector(100, 700));
         Enemy e3Lv2 = new BidirectionalHorizontalEnemy(new Vector(1000, 80));
         Enemy e4Lv2 = new BidirectionalHorizontalEnemy(new Vector(1000, 700));
@@ -103,6 +107,10 @@ public class HelloController implements Initializable {
         Enemy e2lv3 = new ChasingEnemy(new Vector(150, 700));
         Enemy e3lv3 = new ChasingEnemy(new Vector(100, 150));
         Enemy e4lv3 = new ChasingEnemy(new Vector(750, 150));
+//        int randomIndex3 = new Random().nextInt(enemyXCoordinates.size());
+//        for (int i = 0; i<= 4; i++) {
+//
+//        }
         new Thread(e1Lv3).start();
         new Thread(e2lv3).start();
         new Thread(e3lv3).start();
@@ -211,6 +219,7 @@ public class HelloController implements Initializable {
                             avatar.getArm().getBullets().get(i).draw(gc);
                             if (isOutside(avatar.getArm().getBullets().get(i).pos.getX(), avatar.getArm().getBullets().get(i).pos.getY())) {
                                 avatar.getArm().getBullets().remove(i);
+                                break;
                             }
                         }
                     }
